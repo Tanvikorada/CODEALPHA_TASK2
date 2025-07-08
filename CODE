@@ -1,0 +1,90 @@
+import os
+import shutil
+
+def move_jpg_files():
+    # Ask user where to find and move files 
+    print("=== JPG File Organizer ===")
+    print("Let's move all your JPG files to keep things organized!")
+    print()
+    
+    source = input("What folder should I look in? (just press Enter for 'downloads'): ")
+    if source == "":
+        source = "downloads"
+    
+    destination = input("Where should I move the JPG files? (just press Enter for 'images'): ")
+    if destination == "":
+        destination = "images"
+    
+    print()
+    
+    # Make sure source folder exists
+    if not os.path.exists(source):
+        print(f"Hmm, I can't find the '{source}' folder. Make sure it exists first!")
+        return
+    
+    # Create destination folder if needed
+    if not os.path.exists(destination):
+        os.makedirs(destination)
+        print(f"Created a new '{destination}' folder for you!")
+    
+    # Find all the JPG files
+    jpg_files = []
+    all_files = os.listdir(source)
+    
+    for file in all_files:
+        if file.lower().endswith('.jpg') or file.lower().endswith('.jpeg'):
+            jpg_files.append(file)
+    
+    # Tell user what we found
+    if len(jpg_files) == 0:
+        print(f"No JPG files found in '{source}' folder.")
+        return
+    
+    print(f"Found {len(jpg_files)} JPG files to move:")
+    for jpg in jpg_files:
+        print(f"  - {jpg}")
+    
+    # Ask permission before moving
+    print()
+    go_ahead = input("Should I move these files? (y/n): ")
+    if go_ahead.lower() != 'y':
+        print("Okay, nothing moved. Your files are safe!")
+        return
+    
+    # Move the files one by one
+    print("\nMoving files...")
+    moved_count = 0
+    
+    for jpg_file in jpg_files:
+        old_path = os.path.join(source, jpg_file)
+        new_path = os.path.join(destination, jpg_file)
+        
+        # If file already exists, give it a new name now
+        if os.path.exists(new_path):
+            file_name = jpg_file.split('.')[0]
+            file_ext = jpg_file.split('.')[-1]
+            number = 1
+            
+            while os.path.exists(new_path):
+                new_name = f"{file_name}_{number}.{file_ext}"
+                new_path = os.path.join(destination, new_name)
+                number += 1
+            
+            print(f"  Renamed '{jpg_file}' to '{new_name}' (original name was taken)")
+        
+        # Actually move the file
+        try:
+            shutil.move(old_path, new_path)
+            moved_count += 1
+            print(f"  Moved: {jpg_file}")
+        except:
+            print(f"  Couldn't move {jpg_file} - maybe it's being used by another program?")
+    
+    # Show final results
+    print(f"\nAll done! Moved {moved_count} out of {len(jpg_files)} files.")
+    if moved_count > 0:
+        print(f"Your JPG files are now organized in the '{destination}' folder.")
+
+# Run the program
+if _name_ == "_main_":
+    move_jpg_files()
